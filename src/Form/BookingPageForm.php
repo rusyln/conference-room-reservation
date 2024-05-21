@@ -1,5 +1,4 @@
-<?php
-namespace Drupal\conference_room_reservation\Form;
+<?phpnamespace Drupal\conference_room_reservation\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -67,7 +66,7 @@ class BookingPageForm extends FormBase {
 
     // Check room availability
     $room_id = $form_state->getValue('room_id');
-    $is_available = $this->checkRoomAvailability($room_id, $start_datetime, $end_datetime);
+    $is_available = self::checkRoomAvailability($room_id, $start_datetime, $end_datetime);
     if (!$is_available) {
       $form_state->setErrorByName('room_id', $this->t('The selected room is not available for the specified time period.'));
     }
@@ -108,7 +107,7 @@ class BookingPageForm extends FormBase {
   /**
    * Helper function to check if the room is available for booking.
    */
-  private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
+  public static function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
     // Convert date strings to timestamps for comparison.
     $start_timestamp = strtotime($start_datetime);
     $end_timestamp = strtotime($end_datetime);

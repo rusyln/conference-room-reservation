@@ -56,7 +56,7 @@ class ConferenceRoomController extends ControllerBase {
         $end_datetime = $values['end_datetime'];
   
         // Check room availability
-        if (!$this->checkRoomAvailability($room_id, $start_datetime, $end_datetime)) {
+        if (!BookingPageForm::checkRoomAvailability($room_id, $start_datetime, $end_datetime)) {
           $this->messenger()->addError($this->t('The selected room is not available for the specified time period.'));
           // Redirect back to the booking page
           return new RedirectResponse('/conference-room-booking');
@@ -81,26 +81,7 @@ class ConferenceRoomController extends ControllerBase {
     return $this->redirect('conference_room_reservation.booking_page');
   }
 
- /**
-   * Helper function to check if the room is available for booking.
-   */
-  private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-    // Convert date strings to timestamps for comparison
-    $start_timestamp = strtotime($start_datetime);
-    $end_timestamp = strtotime($end_datetime);
 
-    // Load all bookings for the selected room within the specified time range
-    $query = \Drupal::entityQuery('node')
-      ->condition('type', 'booking')
-      ->condition('field_room_id', $room_id)
-      ->condition('field_start_datetime', $end_timestamp, '<')
-      ->condition('field_end_datetime', $start_timestamp, '>')
-      ->accessCheck(TRUE);
-    $result = $query->execute();
-
-    // If there are any overlapping bookings, the room is not available
-    return empty($result);
-  }
 
   public function bookingPage() {
     // Load the booking form without a specific room
