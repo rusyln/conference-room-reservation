@@ -86,7 +86,8 @@ private function checkRoomAvailability($room_id, $start_datetime, $end_datetime)
     ->condition('type', 'conference_room')
     ->condition('field_room_id', $room_id)
     ->condition('field_end_datetime', $start_datetime, '>')
-    ->condition('field_start_datetime', $end_datetime, '<');
+    ->condition('field_start_datetime', $end_datetime, '<')
+    ->accessCheck(TRUE);
   $result = $query->execute();
 
   // If there are any overlapping bookings, the room is not available.
