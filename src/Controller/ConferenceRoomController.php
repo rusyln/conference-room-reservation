@@ -48,8 +48,9 @@ class ConferenceRoomController extends ControllerBase {
     // Check if the form is submitted
     if ($request->isMethod('post')) {
       // Get booking information from the form submission
-      $start_datetime = $request->request->get('start_datetime');
-      $end_datetime = $request->request->get('end_datetime');
+      $values = $request->request->all();
+      $start_datetime = $values['start_datetime'][0]['value'];
+      $end_datetime = $values['end_datetime'][0]['value'];
       
       // Check room availability
       if (!$this->checkRoomAvailability($room_id, $start_datetime, $end_datetime)) {
