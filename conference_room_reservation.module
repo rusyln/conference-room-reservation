@@ -9,6 +9,9 @@ function conference_room_reservation_theme() {
       'variables' => ['form' => NULL],
       'template' => 'conference-room-book-page',
     ],
+    'booked_rooms_page' => [
+      'variables' => ['booked_rooms' => []], // Define variables expected by the template
+      'template' => 'booked-rooms-page', // Name of the Twig template file
+    ],
   ];
 }
-	

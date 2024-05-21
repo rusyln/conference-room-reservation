@@ -1,0 +1,20 @@
+{# booked-rooms-page.html.twig #}
+<h2>Booked Conference Rooms</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Room</th>
+      <th>Start Datetime</th>
+      <th>End Datetime</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for booking in booked_rooms %}
+      <tr>
+        <td>{{ booking.room_title }}</td>
+        <td>{{ booking.start_datetime }}</td>
+        <td>{{ booking.end_datetime }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

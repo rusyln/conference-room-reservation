@@ -21,3 +21,11 @@ conference_room_reservation.booking_page:
     _title: 'Book a Conference Room'
   requirements:
     _permission: 'access content'
+
+conference_room_reservation.booked_rooms:
+  path: '/conference-room/booked'
+  defaults:
+    _controller: '\Drupal\conference_room_reservation\Controller\ConferenceRoomController::bookedRooms'
+    _title: 'Booked Conference Rooms'
+  requirements:
+    _permission: 'access content'    
