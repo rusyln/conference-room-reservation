@@ -43,7 +43,7 @@ class ConferenceRoomController extends ControllerBase {
   }
 
   public function book($room_id, Request $request) {
-    $room = \Drupal\node\Entity\Node::load($room_id);
+    $room = Node::load($room_id);
   
     // Check if the form is submitted
     if ($request->isMethod('post')) {
@@ -51,56 +51,56 @@ class ConferenceRoomController extends ControllerBase {
       $values = $request->request->all();
   
       // Ensure the necessary form fields are set
-      if (isset($values['start_datetime'][0]['value']) && isset($values['end_datetime'][0]['value'])) {
-        $start_datetime = $values['start_datetime'][0]['value'];
-        $end_datetime = $values['end_datetime'][0]['value'];
+      if (isset($values['start_datetime']) && isset($values['end_datetime'])) {
+        $start_datetime = $values['start_datetime'];
+        $end_datetime = $values['end_datetime'];
   
         // Check room availability
         if (!$this->checkRoomAvailability($room_id, $start_datetime, $end_datetime)) {
-          \Drupal::messenger()->addError('The selected room is not available for the specified time period.');
+          $this->messenger()->addError($this->t('The selected room is not available for the specified time period.'));
           // Redirect back to the booking page
           return new RedirectResponse('/conference-room-booking');
         }
   
         // Save the booking information
         // This is a simplified example; in a real application, you'd save this in a custom entity or a similar data structure.
-        \Drupal::messenger()->addStatus('Room booked successfully from ' . $start_datetime . ' to ' . $end_datetime);
+        $this->messenger()->addStatus($this->t('Room booked successfully from @start to @end', [
+          '@start' => $start_datetime,
+          '@end' => $end_datetime,
+        ]));
   
         // Redirect back to the conference room list
         return new RedirectResponse('/conference-room');
       } else {
-        \Drupal::messenger()->addError('Both start and end date and time must be provided.');
+        $this->messenger()->addError($this->t('Both start and end date and time must be provided.'));
         return new RedirectResponse('/conference-room-booking');
       }
     }
   
-    // Load the booking form
-    $form = \Drupal::formBuilder()->getForm('Drupal\conference_room_reservation\Form\BookingPageForm');
-  
-    return [
-      '#theme' => 'conference_room_book_page',
-      '#room' => $room,
-      '#form' => $form,
-    ];
+    // Display the booking form if the request is not a POST request
+    return $this->redirect('conference_room_reservation.booking_page');
   }
-  
 
-/**
- * Helper function to check if the room is available for booking.
- */
-private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-  $query = \Drupal::entityQuery('node')
-    ->condition('type', 'booking')
-    ->condition('status', 1)
-    ->condition('field_room_reference', $room_id)
-    ->condition('field_end_datetime', $start_datetime, '>')
-    ->condition('field_start_datetime', $end_datetime, '<')
-    ->accessCheck(TRUE);
+ /**
+   * Helper function to check if the room is available for booking.
+   */
+  private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
+    // Convert date strings to timestamps for comparison
+    $start_timestamp = strtotime($start_datetime);
+    $end_timestamp = strtotime($end_datetime);
 
-  $result = $query->execute();
-  return empty($result);
-}
+    // Load all bookings for the selected room within the specified time range
+    $query = \Drupal::entityQuery('node')
+      ->condition('type', 'booking')
+      ->condition('field_room_id', $room_id)
+      ->condition('field_start_datetime', $end_timestamp, '<')
+      ->condition('field_end_datetime', $start_timestamp, '>')
+      ->accessCheck(TRUE);
+    $result = $query->execute();
 
+    // If there are any overlapping bookings, the room is not available
+    return empty($result);
+  }
 
   public function bookingPage() {
     // Load the booking form without a specific room
