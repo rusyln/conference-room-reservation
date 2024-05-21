@@ -86,7 +86,8 @@ class ConferenceRoomController extends ControllerBase {
   public function bookedRooms() {
     // Query the 'booking' nodes to fetch booked rooms data
     $query = \Drupal::entityQuery('node')
-      ->condition('type', 'booking');
+      ->condition('type', 'booking')
+      ->accessCheck(TRUE);
     $nids = $query->execute();
     $booked_rooms = \Drupal\node\Entity\Node::loadMultiple($nids);
 
