@@ -19,29 +19,11 @@ class BookingPageForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // Load all conference rooms
-    $query = \Drupal::entityQuery('node')
-      ->condition('type', 'conference_room')
-      ->condition('status', 1)
-      ->accessCheck(TRUE);
-    $nids = $query->execute();
-    $rooms = Node::loadMultiple($nids);
-
-
-// Load all conference rooms
-$nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['type' => 'conference_room', 'status' => 1]);
-
-// Prepare options for the room select field
-$options = [];
-foreach ($nodes as $node) {
-  $options[$node->id()] = $node->getTitle();
-}
-
-
+    // Form elements to select room and specify booking duration.
     $form['room_id'] = [
       '#type' => 'select',
       '#title' => $this->t('Select Room'),
-      '#options' => $options,
+      '#options' => $this->getRoomOptions(),
       '#required' => TRUE,
     ];
 
@@ -83,6 +65,13 @@ foreach ($nodes as $node) {
     if ($start_datetime >= $end_datetime) {
       $form_state->setErrorByName('end_datetime', $this->t('The end date and time must be after the start date and time.'));
     }
+
+    // Check room availability
+    $room_id = $form_state->getValue('room_id');
+    $is_available = $this->checkRoomAvailability($room_id, $start_datetime, $end_datetime);
+    if (!$is_available) {
+      $form_state->setErrorByName('room_id', $this->t('The selected room is not available for the specified time period.'));
+    }
   }
 
   /**
@@ -103,5 +92,26 @@ foreach ($nodes as $node) {
 
     // Redirect back to the booking page
     $form_state->setRedirect('conference_room_reservation.booking_page');
+  }
+
+  /**
+   * Helper function to load room options for the select field.
+   */
+  private function getRoomOptions() {
+    $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['type' => 'conference_room', 'status' => 1]);
+    $options = [];
+    foreach ($nodes as $node) {
+      $options[$node->id()] = $node->getTitle();
+    }
+    return $options;
+  }
+
+  /**
+   * Helper function to check if the room is available for booking.
+   */
+  private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
+    // Implement logic to check room availability based on booked time slots.
+    // This is a placeholder; you need to replace it with your actual logic.
+    return TRUE;
   }
 }
