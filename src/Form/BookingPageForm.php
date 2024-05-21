@@ -1,4 +1,6 @@
-<?phpnamespace Drupal\conference_room_reservation\Form;
+<?php
+
+namespace Drupal\conference_room_reservation\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -64,7 +66,6 @@ class BookingPageForm extends FormBase {
       $form_state->setErrorByName('end_datetime', $this->t('The end date and time must be after the start date and time.'));
     }
 
-    // Check room availability
     $room_id = $form_state->getValue('room_id');
     $is_available = self::checkRoomAvailability($room_id, $start_datetime, $end_datetime);
     if (!$is_available) {
@@ -80,21 +81,15 @@ class BookingPageForm extends FormBase {
     $start_datetime = $form_state->getValue('start_datetime');
     $end_datetime = $form_state->getValue('end_datetime');
 
-    // Save the booking information
-    // This is a simplified example; in a real application, you'd save this in a custom entity or a similar data structure.
     \Drupal::messenger()->addStatus($this->t('Room @room booked from @start_datetime to @end_datetime', [
       '@room' => Node::load($room_id)->getTitle(),
       '@start_datetime' => $start_datetime,
       '@end_datetime' => $end_datetime,
     ]));
 
-    // Redirect back to the booking page
     $form_state->setRedirect('conference_room_reservation.booking_page');
   }
 
-  /**
-   * Helper function to load room options for the select field.
-   */
   private function getRoomOptions() {
     $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['type' => 'conference_room', 'status' => 1]);
     $options = [];
@@ -104,15 +99,10 @@ class BookingPageForm extends FormBase {
     return $options;
   }
 
-  /**
-   * Helper function to check if the room is available for booking.
-   */
   public static function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-    // Convert date strings to timestamps for comparison.
     $start_timestamp = strtotime($start_datetime);
     $end_timestamp = strtotime($end_datetime);
 
-    // Load all bookings for the selected room within the specified time range.
     $query = \Drupal::entityQuery('node')
       ->condition('type', 'booking')
       ->condition('field_room_id', $room_id)
@@ -121,7 +111,6 @@ class BookingPageForm extends FormBase {
       ->accessCheck(TRUE);
     $result = $query->execute();
 
-    // If there are any overlapping bookings, the room is not available.
     return empty($result);
   }
 }
