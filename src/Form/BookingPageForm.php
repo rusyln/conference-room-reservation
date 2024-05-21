@@ -1,10 +1,3 @@
-<?php
-
-namespace Drupal\conference_room_reservation\Form;
-
-use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
 namespace Drupal\conference_room_reservation\Form;
 
 use Drupal\Core\Form\FormBase;
