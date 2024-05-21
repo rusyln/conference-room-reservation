@@ -97,7 +97,7 @@ class ConferenceRoomController extends ControllerBase {
       $room_id = $booking->get('field_room')->target_id;
       $room = Node::load($room_id);
       $room_title = $room->getTitle();
-      $start_datetime = $booking->get('field_start_datetime')->value;
+      $start_datetime = $booking->get('field_field_start_datetime')->value;
       $end_datetime = $booking->get('field_end_datetime')->value;
 
       $rows[] = [
