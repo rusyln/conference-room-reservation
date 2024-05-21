@@ -83,7 +83,34 @@ class ConferenceRoomController extends ControllerBase {
     return $this->redirect('conference_room_reservation.booking_page');
   }
 
+  public function bookedRooms() {
+    // Query the 'booking' nodes to fetch booked rooms data
+    $query = \Drupal::entityQuery('node')
+      ->condition('type', 'booking');
+    $nids = $query->execute();
+    $booked_rooms = \Drupal\node\Entity\Node::loadMultiple($nids);
 
+    // Prepare data to pass to the Twig template
+    $rows = [];
+    foreach ($booked_rooms as $booking) {
+      $room_id = $booking->get('field_room')->target_id;
+      $room = Node::load($room_id);
+      $room_title = $room->getTitle();
+      $start_datetime = $booking->get('field_start_datetime')->value;
+      $end_datetime = $booking->get('field_end_datetime')->value;
+
+      $rows[] = [
+        'room_title' => $room_title,
+        'start_datetime' => $start_datetime,
+        'end_datetime' => $end_datetime,
+      ];
+    }
+
+    return [
+      '#theme' => 'booked_rooms_page',
+      '#booked_rooms' => $rows,
+    ];
+  }
   public function bookingPage() {
     // Load the booking form without a specific room
     $form = \Drupal::formBuilder()->getForm('Drupal\conference_room_reservation\Form\BookingPageForm');
