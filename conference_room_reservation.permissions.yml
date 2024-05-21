@@ -1,0 +1,4 @@
+access conference room reservation:
+  title: 'Access conference room reservation'
+  description: 'Permission to access conference room reservation functionalities.'
+  restrict access: TRUE

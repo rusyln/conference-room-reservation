@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function conference_room_reservation_theme() {
+  return [
+    'conference_room_book_page' => [
+      'variables' => ['form' => NULL],
+      'template' => 'conference-room-book-page',
+    ],
+  ];
+}
+	

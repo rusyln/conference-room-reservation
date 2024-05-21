@@ -1,0 +1,23 @@
+conference_room_reservation.view:
+  path: '/conference-room'
+  defaults:
+    _controller: '\Drupal\conference_room_reservation\Controller\ConferenceRoomController::view'
+    _title: 'Conference Room Availability'
+  requirements:
+    _permission: 'access content'
+
+conference_room_reservation.book:
+  path: '/conference-room/book/{room_id}'
+  defaults:
+    _controller: '\Drupal\conference_room_reservation\Controller\ConferenceRoomController::book'
+    _title: 'Book Conference Room'
+  requirements:
+    _permission: 'access content'
+
+conference_room_reservation.booking_page:
+  path: '/conference-room/book'
+  defaults:
+    _controller: '\Drupal\conference_room_reservation\Controller\ConferenceRoomController::bookingPage'
+    _title: 'Book a Conference Room'
+  requirements:
+    _permission: 'access content'

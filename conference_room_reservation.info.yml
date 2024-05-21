@@ -1,0 +1,8 @@
+name: 'Conference Room Reservation'
+type: module
+description: 'A module to handle conference room reservations.'
+core_version_requirement: ^8 || ^9 || ^10
+package: Custom
+dependencies:
+  - drupal:node
+  - drupal:datetime

@@ -1,0 +1,68 @@
+<?php
+
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_install().
+ */
+function conference_room_reservation_install() {
+  \Drupal::service('module_installer')->install(['node', 'datetime']);
+
+  // Create a content type for conference rooms.
+  if (!NodeType::load('conference_room')) {
+    $type = NodeType::create([
+      'type' => 'conference_room',
+      'name' => 'Conference Room',
+      'description' => 'A content type for conference rooms',
+    ]);
+    $type->save();
+  }
+
+  // Create a field for room capacity.
+  $field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
+    'field_name' => 'field_capacity',
+    'entity_type' => 'node',
+    'type' => 'integer',
+  ]);
+  $field_storage->save();
+  $field_instance = \Drupal\field\Entity\FieldConfig::create([
+    'field_storage' => $field_storage,
+    'bundle' => 'conference_room',
+    'label' => 'Capacity',
+    'required' => TRUE,
+  ]);
+  $field_instance->save();
+
+  // Create a field for room availability (date).
+  $field_storage = \Drupal\field\Entity\FieldStorageConfig::create([
+    'field_name' => 'field_availability',
+    'entity_type' => 'node',
+    'type' => 'datetime',
+  ]);
+  $field_storage->save();
+  $field_instance = \Drupal\field\Entity\FieldConfig::create([
+    'field_storage' => $field_storage,
+    'bundle' => 'conference_room',
+    'label' => 'Availability',
+    'required' => TRUE,
+  ]);
+  $field_instance->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function conference_room_reservation_uninstall() {
+  // Remove the conference_room content type and its fields.
+  if ($type = NodeType::load('conference_room')) {
+    $type->delete();
+  }
+
+  // Optionally, delete field storages if they are not shared with other content types.
+  if ($field_storage = \Drupal\field\Entity\FieldStorageConfig::load('node.field_capacity')) {
+    $field_storage->delete();
+  }
+  if ($field_storage = \Drupal\field\Entity\FieldStorageConfig::load('node.field_availability')) {
+    $field_storage->delete();
+  }
+}
