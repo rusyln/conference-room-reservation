@@ -47,12 +47,20 @@ class ConferenceRoomController extends ControllerBase {
 
     // Check if the form is submitted
     if ($request->isMethod('post')) {
-      // Get booking date from the form submission
-      $date = $request->request->get('date');
+      // Get booking information from the form submission
+      $start_datetime = $request->request->get('start_datetime');
+      $end_datetime = $request->request->get('end_datetime');
       
+      // Check room availability
+      if (!$this->checkRoomAvailability($room_id, $start_datetime, $end_datetime)) {
+        \Drupal::messenger()->addError('The selected room is not available for the specified time period.');
+        // Redirect back to the booking page
+        return new RedirectResponse('/conference-room-booking');
+      }
+
       // Save the booking information
       // This is a simplified example; in a real application, you'd save this in a custom entity or a similar data structure.
-      \Drupal::messenger()->addStatus('Room booked successfully for ' . $date);
+      \Drupal::messenger()->addStatus('Room booked successfully from ' . $start_datetime . ' to ' . $end_datetime);
 
       // Redirect back to the conference room list
       return new RedirectResponse('/conference-room');
@@ -66,7 +74,7 @@ class ConferenceRoomController extends ControllerBase {
       '#room' => $room,
       '#form' => $form,
     ];
-  }
+}
 
 
   public function bookingPage() {
