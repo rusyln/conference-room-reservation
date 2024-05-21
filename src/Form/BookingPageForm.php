@@ -5,7 +5,6 @@ namespace Drupal\conference_room_reservation\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
-use Drupal\Core\Url;
 
 class BookingPageForm extends FormBase {
 
@@ -19,19 +18,13 @@ class BookingPageForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $room_id = NULL) {
-    // If room_id is not provided, redirect to booking page
-    if (!$room_id) {
-      $form_state->setRedirect('conference_room_reservation.booking_page');
-      return;
-    }
-
-    // Get room title for display
-    $room_title = Node::load($room_id)->getTitle();
-
-    $form['room_title'] = [
-      '#type' => 'item',
-      '#markup' => $this->t('Room: @title', ['@title' => $room_title]),
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    // Form elements to select room and specify booking duration.
+    $form['room_id'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select Room'),
+      '#options' => $this->getRoomOptions(),
+      '#required' => TRUE,
     ];
 
     $form['start_datetime'] = [
@@ -59,12 +52,26 @@ class BookingPageForm extends FormBase {
       '#value' => $this->t('Book Room'),
     ];
 
-    $form['room_id'] = [
-      '#type' => 'value',
-      '#value' => $room_id,
-    ];
-
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    $start_datetime = $form_state->getValue('start_datetime');
+    $end_datetime = $form_state->getValue('end_datetime');
+
+    if ($start_datetime >= $end_datetime) {
+      $form_state->setErrorByName('end_datetime', $this->t('The end date and time must be after the start date and time.'));
+    }
+
+    // Check room availability
+    $room_id = $form_state->getValue('room_id');
+    $is_available = $this->checkRoomAvailability($room_id, $start_datetime, $end_datetime);
+    if (!$is_available) {
+      $form_state->setErrorByName('room_id', $this->t('The selected room is not available for the specified time period.'));
+    }
   }
 
   /**
@@ -86,4 +93,32 @@ class BookingPageForm extends FormBase {
     // Redirect back to the booking page
     $form_state->setRedirect('conference_room_reservation.booking_page');
   }
+
+  /**
+   * Helper function to load room options for the select field.
+   */
+  private function getRoomOptions() {
+    $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['type' => 'conference_room', 'status' => 1]);
+    $options = [];
+    foreach ($nodes as $node) {
+      $options[$node->id()] = $node->getTitle();
+    }
+    return $options;
+  }
+/**
+ * Helper function to check if the room is available for booking.
+ */
+private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
+  // Load all bookings for the selected room within the specified time range.
+  $query = \Drupal::entityQuery('node')
+    ->condition('type', 'booking')
+    ->condition('field_room_id', $room_id)
+    ->condition('field_end_datetime', $start_datetime, '>')
+    ->condition('field_start_datetime', $end_datetime, '<')
+    ->accessCheck(TRUE);
+  $result = $query->execute();
+
+  // If there are any overlapping bookings, the room is not available.
+  return empty($result);
+}
 }
