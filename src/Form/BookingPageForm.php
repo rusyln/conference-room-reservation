@@ -55,23 +55,24 @@ class BookingPageForm extends FormBase {
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    $start_datetime = $form_state->getValue('start_datetime');
-    $end_datetime = $form_state->getValue('end_datetime');
+/**
+ * {@inheritdoc}
+ */
+public function validateForm(array &$form, FormStateInterface $form_state) {
+  $start_datetime = $form_state->getValue('start_datetime')->getTimestamp();
+  $end_datetime = $form_state->getValue('end_datetime')->getTimestamp();
 
-    if ($start_datetime >= $end_datetime) {
+  if ($start_datetime >= $end_datetime) {
       $form_state->setErrorByName('end_datetime', $this->t('The end date and time must be after the start date and time.'));
-    }
-
-    $room_id = $form_state->getValue('room_id');
-    $is_available = self::checkRoomAvailability($room_id, $start_datetime, $end_datetime);
-    if (!$is_available) {
-      $form_state->setErrorByName('room_id', $this->t('The selected room is not available for the specified time period.'));
-    }
   }
+
+  $room_id = $form_state->getValue('room_id');
+  $is_available = self::checkRoomAvailability($room_id, $start_datetime, $end_datetime);
+  if (!$is_available) {
+      $form_state->setErrorByName('room_id', $this->t('The selected room is not available for the specified time period.'));
+  }
+}
+
 
   /**
    * {@inheritdoc}
