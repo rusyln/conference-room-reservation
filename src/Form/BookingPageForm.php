@@ -114,7 +114,7 @@ class BookingPageForm extends FormBase {
 
     $query = \Drupal::entityQuery('node')
       ->condition('type', 'booking')
-      ->condition('field_room_id', $room_id)
+      ->condition('field_room', $room_id)
       ->condition('field_start_datetime', $end_timestamp, '<')
       ->condition('field_end_datetime', $start_timestamp, '>')
       ->accessCheck(TRUE);
