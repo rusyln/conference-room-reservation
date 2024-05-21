@@ -5,8 +5,8 @@ namespace Drupal\conference_room_reservation\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Drupal\Core\Link;
-use Drupal\Core\Url;
+use Drupal\conference_room_reservation\Form\BookingPageForm;
+use Drupal\node\Entity\Node;
 
 class ConferenceRoomController extends ControllerBase {
 
@@ -80,7 +80,6 @@ class ConferenceRoomController extends ControllerBase {
     // Display the booking form if the request is not a POST request
     return $this->redirect('conference_room_reservation.booking_page');
   }
-
 
 
   public function bookingPage() {
