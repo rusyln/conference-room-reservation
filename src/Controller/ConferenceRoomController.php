@@ -59,7 +59,7 @@ class ConferenceRoomController extends ControllerBase {
     }
 
     // Load the booking form
-    $form = \Drupal::formBuilder()->getForm('Drupal\conference_room_reservation\Form\BookingForm', $room);
+    $form = \Drupal::formBuilder()->getForm('Drupal\conference_room_reservation\Form\BookingPageForm');
 
     return [
       '#theme' => 'conference_room_book',
@@ -67,6 +67,7 @@ class ConferenceRoomController extends ControllerBase {
       '#form' => $form,
     ];
   }
+
 
   public function bookingPage() {
     // Load the booking form without a specific room
