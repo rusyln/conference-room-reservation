@@ -89,7 +89,6 @@ class ConferenceRoomController extends ControllerBase {
  * Helper function to check if the room is available for booking.
  */
 private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-  // Load all bookings for the selected room within the specified time range.
   $query = \Drupal::entityQuery('node')
     ->condition('type', 'booking')
     ->condition('status', 1)
@@ -97,11 +96,11 @@ private function checkRoomAvailability($room_id, $start_datetime, $end_datetime)
     ->condition('field_end_datetime', $start_datetime, '>')
     ->condition('field_start_datetime', $end_datetime, '<')
     ->accessCheck(TRUE);
-  $result = $query->execute();
 
-  // If there are any overlapping bookings, the room is not available.
+  $result = $query->execute();
   return empty($result);
 }
+
 
   public function bookingPage() {
     // Load the booking form without a specific room
