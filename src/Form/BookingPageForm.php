@@ -4,6 +4,7 @@ namespace Drupal\conference_room_reservation\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 class BookingPageForm extends FormBase {
 
@@ -77,16 +78,16 @@ class BookingPageForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $room_id = $form_state->getValue('room_id');
-    $start_datetime = $form_state->getValue('start_datetime');
-    $end_datetime = $form_state->getValue('end_datetime');
+    $start_datetime = new DrupalDateTime($form_state->getValue('start_datetime'));
+    $end_datetime = new DrupalDateTime($form_state->getValue('end_datetime'));
 
     // Create a new booking node
     $node = Node::create([
       'type' => 'booking',
       'title' => $this->t('Booking for @room', ['@room' => Node::load($room_id)->getTitle()]),
       'field_room' => $room_id,
-      'field_field_start_datetime' => $start_datetime,
-      'field_end_datetime' => $end_datetime,
+      'field_field_start_datetime' => $start_datetime->format('Y-m-d\TH:i:s'),
+      'field_end_datetime' => $end_datetime->format('Y-m-d\TH:i:s'),
     ]);
     $node->save();
 
