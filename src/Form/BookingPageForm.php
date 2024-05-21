@@ -105,13 +105,19 @@ class BookingPageForm extends FormBase {
     }
     return $options;
   }
+/**
+ * Helper function to check if the room is available for booking.
+ */
+private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
+  // Load all bookings for the selected room within the specified time range.
+  $query = \Drupal::entityQuery('node')
+    ->condition('type', 'conference_room')
+    ->condition('field_room_id', $room_id)
+    ->condition('field_end_datetime', $start_datetime, '>')
+    ->condition('field_start_datetime', $end_datetime, '<');
+  $result = $query->execute();
 
-  /**
-   * Helper function to check if the room is available for booking.
-   */
-  private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-    // Implement logic to check room availability based on booked time slots.
-    // This is a placeholder; you need to replace it with your actual logic.
-    return TRUE;
-  }
+  // If there are any overlapping bookings, the room is not available.
+  return empty($result);
+}
 }
