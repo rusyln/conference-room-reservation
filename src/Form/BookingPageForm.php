@@ -111,6 +111,11 @@ public function validateForm(array &$form, FormStateInterface $form_state) {
   }
 
   public static function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
+    // Ensure $start_datetime and $end_datetime are instances of DrupalDateTime
+    if (!($start_datetime instanceof DrupalDateTime) || !($end_datetime instanceof DrupalDateTime)) {
+        return FALSE; // Return FALSE if datetime objects are not provided
+    }
+
     $start_timestamp = $start_datetime->getTimestamp();
     $end_timestamp = $end_datetime->getTimestamp();
 
@@ -127,5 +132,6 @@ public function validateForm(array &$form, FormStateInterface $form_state) {
     // If count is 0, room is available; otherwise, it's booked
     return $count === 0;
 }
+
 
 }
