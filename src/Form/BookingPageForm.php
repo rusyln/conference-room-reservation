@@ -111,17 +111,21 @@ public function validateForm(array &$form, FormStateInterface $form_state) {
   }
 
   public static function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-    $start_timestamp = strtotime($start_datetime);
-    $end_timestamp = strtotime($end_datetime);
+    $start_timestamp = $start_datetime->getTimestamp();
+    $end_timestamp = $end_datetime->getTimestamp();
 
     $query = \Drupal::entityQuery('node')
       ->condition('type', 'booking')
       ->condition('field_room', $room_id)
-      ->condition('field_field_start_datetime', $end_timestamp, '<')
+      ->condition('field_start_datetime', $end_timestamp, '<')
       ->condition('field_end_datetime', $start_timestamp, '>')
       ->accessCheck(TRUE);
-    $result = $query->execute();
 
-    return empty($result);
-  }
+    // Get the count of bookings overlapping with the specified time period
+    $count = $query->count()->execute();
+
+    // If count is 0, room is available; otherwise, it's booked
+    return $count === 0;
+}
+
 }
