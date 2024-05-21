@@ -5,6 +5,11 @@ namespace Drupal\conference_room_reservation\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
+namespace Drupal\conference_room_reservation\Form;
+
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
 
 class BookingPageForm extends FormBase {
 
@@ -80,6 +85,16 @@ class BookingPageForm extends FormBase {
     $room_id = $form_state->getValue('room_id');
     $start_datetime = $form_state->getValue('start_datetime');
     $end_datetime = $form_state->getValue('end_datetime');
+
+    // Create a new booking node
+    $node = Node::create([
+      'type' => 'booking',
+      'title' => $this->t('Booking for @room', ['@room' => Node::load($room_id)->getTitle()]),
+      'field_room_id' => $room_id,
+      'field_start_datetime' => $start_datetime,
+      'field_end_datetime' => $end_datetime,
+    ]);
+    $node->save();
 
     \Drupal::messenger()->addStatus($this->t('Room @room booked from @start_datetime to @end_datetime', [
       '@room' => Node::load($room_id)->getTitle(),
