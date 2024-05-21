@@ -43,65 +43,39 @@ class ConferenceRoomController extends ControllerBase {
   }
 
   public function book($room_id, Request $request) {
-    $room = \Drupal\node\Entity\Node::load($room_id);
-
-    // Check if the form is submitted
-    if ($request->isMethod('post')) {
-      // Get booking information from the form submission
-      $values = $request->request->all();
-      $start_datetime = $values['start_datetime'][0]['value'];
-      $end_datetime = $values['end_datetime'][0]['value'];
-      
-      // Check room availability
-      if (!$this->checkRoomAvailability($room_id, $start_datetime, $end_datetime)) {
-        \Drupal::messenger()->addError('The selected room is not available for the specified time period.');
-        // Redirect back to the booking page
-        return new RedirectResponse('/conference-room-booking');
-      }
-
-      // Save the booking information
-      // This is a simplified example; in a real application, you'd save this in a custom entity or a similar data structure.
-      \Drupal::messenger()->addStatus('Room booked successfully from ' . $start_datetime . ' to ' . $end_datetime);
-
-      // Redirect back to the conference room list
-      return new RedirectResponse('/conference-room');
+    // Check room availability before loading the form
+    if (!$this->checkRoomAvailability($room_id)) {
+      \Drupal::messenger()->addError('The selected room is not available.');
+      return new RedirectResponse(Url::fromRoute('conference_room_reservation.booking_page')->toString());
     }
 
     // Load the booking form
-    $form = \Drupal::formBuilder()->getForm('Drupal\conference_room_reservation\Form\BookingPageForm');
-
-    return [
-      '#theme' => 'conference_room_book_page',
-      '#room' => $room,
-      '#form' => $form,
-    ];
-}
-
-/**
- * Helper function to check if the room is available for booking.
- */
-private function checkRoomAvailability($room_id, $start_datetime, $end_datetime) {
-  // Load all bookings for the selected room within the specified time range.
-  $query = \Drupal::entityQuery('node')
-    ->condition('type', 'booking')
-    ->condition('status', 1)
-    ->condition('field_room_reference', $room_id)
-    ->condition('field_end_datetime', $start_datetime, '>')
-    ->condition('field_start_datetime', $end_datetime, '<')
-    ->accessCheck(TRUE);
-  $result = $query->execute();
-
-  // If there are any overlapping bookings, the room is not available.
-  return empty($result);
-}
-
-  public function bookingPage() {
-    // Load the booking form without a specific room
-    $form = \Drupal::formBuilder()->getForm('Drupal\conference_room_reservation\Form\BookingPageForm');
+    $form = $this->formBuilder()->getForm(BookingPageForm::class, $room_id);
 
     return [
       '#theme' => 'conference_room_book_page',
       '#form' => $form,
     ];
   }
+
+  /**
+   * Helper function to check if the room is available for booking.
+   */
+  private function checkRoomAvailability($room_id) {
+    // Implement your logic to check room availability here.
+    // For example, you might check if there are any existing bookings for the room.
+    // Return TRUE if the room is available, FALSE otherwise.
+    return TRUE; // Placeholder, replace with your actual logic
+  }
+
+  public function bookingPage() {
+    // Load the booking form without a specific room
+    $form = $this->formBuilder()->getForm(BookingPageForm::class);
+
+    return [
+      '#theme' => 'conference_room_book_page',
+      '#form' => $form,
+    ];
+  }
+
 }
